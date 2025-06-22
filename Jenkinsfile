@@ -8,10 +8,10 @@ pipeline {
     environment {
         DOCKER_HOST = 'tcp://192.168.1.14:2375'
         KUBECONFIG = '/var/lib/jenkins/.kube/config'
-        IMAGE_NAME = "venkatesansg111/abctechnologies"
-        CONTAINER_NAME = 'abctechnologies-container'
-        SERVICE_NAME = 'abctechnologies-service'
-        GIT_REPO = 'https://github.com/venkatesansg111/ABC_Project.git'
+        IMAGE_NAME = "venkatesansg111/xyztech"
+        CONTAINER_NAME = 'xyztech-container'
+        SERVICE_NAME = 'xyztech-service'
+        GIT_REPO = 'https://github.com/venkatesansg111/IGP-2.git'
         BRANCH = 'main'
     }
     stages {
@@ -44,7 +44,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh 'docker version'
-                sh 'cp target/ABCtechnologies-1.0.war .'  
+                sh 'cp target/XYZtechnologies-1.0.war .'  
                 sh "docker build -t ${IMAGE_NAME}:${env.BUILD_NUMBER} ."  
             }
         }

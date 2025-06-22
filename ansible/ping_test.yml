@@ -1,0 +1,7 @@
+---
+- name: Test Ansible Connectivity to Kubernetes master
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Ping target node
+      ansible.builtin.ping: {}

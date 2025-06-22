@@ -1,0 +1,61 @@
+---
+- name: Deploy Docker Image to Kubernetes
+  hosts: all
+  gather_facts: true
+  vars:
+    ansible_python_interpreter: /usr/bin/python3  # Ensure correct Python
+    kubeconfig_file: /home/jenkins-master/.kube/config
+    namespace_name: abc-technologies
+    remote_k8s_dir: "/tmp/k8s"                     # Temporary location on remote
+  tasks:
+    - name: Display user
+      command: whoami
+      register: result
+
+    - debug:
+        var: result.stdout
+
+    - name: Show where ansible user looking for the kubeconfig file
+      command: ls -lrta $HOME/.kube
+      register: result
+
+    - debug:
+        var: result.stdout
+
+    - name: Create Kubernetes Namespace for the application ABC technologies
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_file }}"
+        name: "{{ namespace_name }}"
+        api_version: v1
+        kind: Namespace
+        state: present
+
+    - name: Create remote directory for k8s manifests
+      file:
+        path: "{{ remote_k8s_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Copy Deployment YAML to remote node
+      copy:
+        src: /var/lib/jenkins/workspace/maven-project/k8s/deployment.yaml
+        dest: "{{ remote_k8s_dir }}/deployment.yaml"
+
+    - name: Copy Service YAML to remote node
+      copy:
+        src: /var/lib/jenkins/workspace/maven-project/k8s/service.yaml
+        dest: "{{ remote_k8s_dir }}/service.yaml"
+
+    - name: Apply Kubernetes Deployment
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_file }}"
+        state: present
+        src: "{{ remote_k8s_dir }}/deployment.yaml"
+        namespace: "{{ namespace_name }}"
+
+    - name: Apply Kubernetes Service
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_file }}"
+        state: present
+        src: "{{ remote_k8s_dir }}/service.yaml"
+        namespace: "{{ namespace_name }}"
